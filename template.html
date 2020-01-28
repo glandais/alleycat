@@ -1,0 +1,82 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+   integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+   crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+   crossorigin=""></script>
+	</head
+	<body>
+		<form action='?' method='post'>
+			<textarea name="problem" id="problem" rows="20" style="width:100%">${problem}</textarea><br/>
+			<br/>
+			<input type="submit" value="CALCULER" name="dumb"/>
+			<br/>
+		</form>
+		<pre>${solution}</pre>
+		
+		<br/>
+		<div>
+		<input id="address" type="textbox" value="">
+      	<input id="submit" type="button" value="Geocode">
+      	</div>
+		<br/>
+		<br/>
+      	<div id="map" style="height: 800px; width:100%"></div>
+      	<input id="demo" type="button" value="Demo">
+      	
+      	<script>
+      	${view}
+      	var mymap = L.map('map').setView([47.205816, -1.545699], 12);
+      	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'pk.eyJ1IjoiZ2xhbmRhaXMiLCJhIjoiZGQxMDNjODBlN2ZkMDEyNjJjN2E5MjEzNzk2YWU0NDUifQ.YyPJXAyXxk0wuXB1DBqymg'
+}).addTo(mymap);
+
+      function initMap() {
+        var geocoder = new google.maps.Geocoder();
+
+        document.getElementById('submit').addEventListener('click', function() {
+          geocodeAddress(geocoder, map);
+        });
+        document.getElementById('demo').addEventListener('click', function() {
+          document.getElementById('problem').value = 'S:Place des fonderies, Nantes\nA:Rue René Cassin, Rezé\nB:Rue du Landreau, Nantes\nC:Rue Louis David, Nantes\nD:Rue du Ranzay, Nantes\nF:2 Rue Bossuet, Nantes\n\nS=Fonderies\nA=Cyrus\nB=Doulon\nC=Procé\nD=Haluchère\nF=Caf K\n\nB1>A1\nA1>F\nB1>D\nD>C1\nC1>A2\nA2>F\nC2>B2\nB2>F';
+        });
+        
+        viewSolution();
+      }
+
+function onMarkerClick(e) {
+            var checkpoint = prompt("Checkpoint short name");
+            var longname = prompt("Checkpoint long name");
+            var problem = document.getElementById('problem').value;
+          
+            problem = checkpoint + ':' + e.latlng.lat + ',' + e.latlng.lng + '\n' + problem;
+            problem = checkpoint + '=' + longname + '\n' + problem;
+            document.getElementById('problem').value = problem;
+}
+
+      function geocodeAddress(geocoder, resultsMap) {
+        var address = document.getElementById('address').value;
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status === 'OK') {
+          	for (let result of results) {
+          		var marker = L.marker([result.geometry.location.lat(), result.geometry.location.lng()]).addTo(mymap);
+          		marker.on('tap', onMarkerClick);
+          		marker.on('click', onMarkerClick);
+          	}
+          } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+          }
+        });
+      }
+    </script>
+      	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAcwcAzoTAlSIdJs0-Z2mLa0Xrj3gWFVQ&callback=initMap">
+    </script>
+	</body>
+</html>
